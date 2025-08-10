@@ -1,0 +1,11 @@
+/smart-contracts
+  /contracts
+    - CulturaToken.sol       // Token ERC-20 personalizado
+    - ShowFactory.sol        // Factory para crear shows
+    - ShowContract.sol       // Contrato por cada show
+    - RoyaltyDistributor.sol // Distribución de regalías
+  /test
+    - CulturaToken.test.js
+  /migrations
+    - 1_deploy_contracts.js
+  - hardhat.config.js

@@ -1,0 +1,13 @@
+# Direcciones de Contratos
+
+## Polygon Mainnet
+- **CulturaToken (CTK):** [0x...](https://polygonscan.com/address/0x...)
+- **ShowFactory:** [0x...](https://polygonscan.com/address/0x...)
+
+## Mumbai Testnet
+- **CulturaToken (CTK):** [0x...](https://mumbai.polygonscan.com/address/0x...)
+- **ShowFactory:** [0x...](https://mumbai.polygonscan.com/address/0x...)
+
+## Desarrollo Local
+- **CulturaToken (CTK):** 0x...
+- **ShowFactory:** 0x...

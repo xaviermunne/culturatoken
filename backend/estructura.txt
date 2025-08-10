@@ -1,0 +1,21 @@
+/backend
+  /config
+    - blockchain.js
+    - db.js
+  /controllers
+    - authController.js
+    - investmentController.js
+    - showController.js
+  /models
+    - User.js
+    - Show.js
+    - Investment.js
+  /routes
+    - api.js
+  /smart-contracts
+    - build/
+    - contracts/
+      - CulturaToken.sol
+      - ShowFactory.sol
+  - server.js
+  - package.json
