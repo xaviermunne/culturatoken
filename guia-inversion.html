@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="es" x-data="appState()" x-cloak>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía de Inversión - CulturaToken</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css">
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <a href="index.html" class="text-2xl font-bold gradient-text">CulturaToken</a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8">
+                    <a href="index.html#shows" class="text-gray-700 hover:text-purple-600 transition">Espectáculos</a>
+                    <a href="artistas.html" class="text-gray-700 hover:text-purple-600 transition">Artistas</a>
+                    <a href="blog.html" class="text-gray-700 hover:text-purple-600 transition">Blog</a>
+                    <a href="guia-inversion.html" class="text-gray-700 hover:text-purple-600 transition font-semibold text-purple-600">Guía</a>
+                    <a href="index.html#faq" class="text-gray-700 hover:text-purple-600 transition">FAQ</a>
+                    <template x-if="loggedIn">
+                        <a href="#dashboard" class="text-gray-700 hover:text-purple-600 transition">Mi Panel</a>
+                    </template>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <template x-if="!loggedIn">
+                        <button @click="showLoginModal = true" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                            <i class="fas fa-sign-in-alt mr-2"></i>Acceder
+                        </button>
+                    </template>
+                    <template x-if="loggedIn">
+                         <button @click="logout()" class="text-gray-500 hover:text-purple-600 transition">
+                            <i class="fas fa-sign-out-alt mr-2"></i>Salir
+                        </button>
+                    </template>
+                    <button id="connectWallet" @click="connectPhantom()" :class="phantomConnected ? 'bg-green-600' : 'bg-gray-700'" class="text-white px-4 py-2 rounded-lg hover:bg-opacity-80 transition">
+                        <i class="fas fa-wallet mr-2"></i>
+                        <span x-text="phantomConnected ? 'Phantom Conectado' : 'Conectar Phantom'"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg pt-32 pb-20 text-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 class="text-5xl font-bold mb-6">Guía de Inversión en CulturaToken</h1>
+            <p class="text-xl mb-8 opacity-90">Aprende cómo invertir en espectáculos culturales y obtener rendimientos de forma segura.</p>
+            <div class="animate-float">
+                <img src="https://illustrations.popsy.co/amber/digital-nomad.svg" alt="Inversión cultural" class="w-64 mx-auto">
+            </div>
+        </div>
+    </section>
+
+    <!-- Steps Section -->
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 class="text-4xl font-bold text-center mb-12 gradient-text">Cómo Invertir en 4 Pasos</h2>
+        
+        <!-- Paso 1 - Crear Cuenta -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
+            <div class="order-1">
+                <div class="bg-purple-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                    <span class="text-3xl font-bold text-purple-600">1</span>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Crea tu Cuenta y Monedero</h3>
+                <p class="text-gray-600 mb-6">Regístrate en segundos y obtén un monedero custodial integrado. No necesitas experiencia previa en criptomonedas.</p>
+                <ul class="space-y-3 text-gray-600 mb-8">
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-purple-600 mt-1 mr-2"></i>
+                        <span>Verificación de identidad rápida</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-purple-600 mt-1 mr-2"></i>
+                        <span>Monedero seguro sin necesidad de gestionar claves</span>
+                    </li>
+                    <li class="flex items-start">
+                        <i class="fas fa-check-circle text-purple-600 mt-1 mr-2"></i>
+                        <span>Acceso inmediato a todos los espectáculos</span>
+                    </li>
+                </ul>
+                <button @click="showLoginModal = true" class="bg-purple-600 text-white px-8 py-3 rounded-lg hover:bg-purple-700 transition font-semibold">
+                    <i class="fas fa-user-plus mr-2"></i>Crear Cuenta Gratis
+                </button>
+            </div>
+            <div class="order-2 md:order-3 flex flex-col items-center justify-center">
+                <img src="https://illustrations.popsy.co/amber/security.svg" alt="Crear cuenta" class="w-full max-w-md">
+            </div>
+        </div>
+
+        <!-- Paso 2 - Fondear Cuenta -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
+            <div class="order-2 md:order-1 flex flex-col items-center justify-center">
+                <img src="https://illustrations.popsy.co/amber/business-plan.svg" alt="Fondear cuenta" class="w-full max-w-md">
+            </div>
+            <div class="order-1 md:order-2">
+                <div class="bg-indigo-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                    <span class="text-3xl font-bold text-indigo-600">2</span>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Fondea tu Cuenta</h3>
+                <p class="text-gray-600 mb-6">Compra USDT/USDC directamente con tu tarjeta o transfiere criptomonedas desde otra wallet.</p>
+                <div class="bg-indigo-50 p-6 rounded-xl mb-8">
+                    <h4 class="font-bold text-indigo-700 mb-3">Opciones de fondeo:</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-white p-4 rounded-lg shadow-sm">
+                            <i class="fas fa-credit-card text-indigo-600 text-xl mb-2"></i>
+                            <p class="font-semibold">Tarjeta de Crédito</p>
+                            <p class="text-sm text-gray-600">Compra directa con 2% de comisión</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-lg shadow-sm">
+                            <i class="fas fa-exchange-alt text-indigo-600 text-xl mb-2"></i>
+                            <p class="font-semibold">Transferencia</p>
+                            <p class="text-sm text-gray-600">Desde bancos o otras wallets</p>
+                        </div>
+                    </div>
+                </div>
+                <button @click="showUsdcModal = true" class="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition font-semibold">
+                    <i class="fas fa-coins mr-2"></i>Comprar USDT/USDC
+                </button>
+            </div>
+        </div>
+
+        <!-- Paso 3 - Seleccionar Espectáculo -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center mb-20">
+            <div>
+                <div class="bg-rose-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                    <span class="text-3xl font-bold text-rose-600">3</span>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Selecciona tu Espectáculo</h3>
+                <p class="text-gray-600 mb-6">Explora nuestra colección de obras de teatro, circo y danza. Cada proyecto incluye:</p>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 flex items-start">
+                        <i class="fas fa-chart-line text-rose-600 mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-bold">Proyección financiera</h4>
+                            <p class="text-sm text-gray-600">Estimación de retornos basada en datos históricos</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 flex items-start">
+                        <i class="fas fa-calendar-alt text-rose-600 mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-bold">Cronograma</h4>
+                            <p class="text-sm text-gray-600">Fechas clave de producción y distribución</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 flex items-start">
+                        <i class="fas fa-users text-rose-600 mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-bold">Equipo artístico</h4>
+                            <p class="text-sm text-gray-600">Perfiles de los creadores y su trayectoria</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-lg border border-gray-200 flex items-start">
+                        <i class="fas fa-percentage text-rose-600 mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-bold">Porcentaje de regalías</h4>
+                            <p class="text-sm text-gray-600">Participación en ingresos futuros</p>
+                        </div>
+                    </div>
+                </div>
+                <a href="index.html#shows" class="inline-block bg-rose-600 text-white px-8 py-3 rounded-lg hover:bg-rose-700 transition font-semibold">
+                    <i class="fas fa-search mr-2"></i>Explorar Espectáculos
+                </a>
+            </div>
+            <div>
+                <img src="https://illustrations.popsy.co/amber/designer.svg" alt="Seleccionar espectáculo" class="w-full max-w-md mx-auto">
+            </div>
+        </div>
+
+        <!-- Paso 4 - Gestionar Inversión -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="order-2 md:order-1 flex flex-col items-center justify-center">
+                <img src="https://illustrations.popsy.co/amber/growth.svg" alt="Gestionar inversión" class="w-full max-w-md">
+            </div>
+            <div class="order-1 md:order-2">
+                <div class="bg-green-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                    <span class="text-3xl font-bold text-green-600">4</span>
+                </div>
+                <h3 class="text-2xl font-bold mb-4">Gestiona tu Inversión</h3>
+                <p class="text-gray-600 mb-6">Desde tu panel podrás:</p>
+                <div class="space-y-4 mb-8">
+                    <div class="flex items-start bg-green-50 p-4 rounded-lg">
+                        <i class="fas fa-coins text-green-600 mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-bold">Seguimiento de regalías</h4>
+                            <p class="text-sm text-gray-600">Visualiza los ingresos generados por tus inversiones</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start bg-green-50 p-4 rounded-lg">
+                        <i class="fas fa-exchange-alt text-green-600 mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-bold">Mercado secundario</h4>
+                            <p class="text-sm text-gray-600">Compra y vende tokens con otros inversores</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start bg-green-50 p-4 rounded-lg">
+                        <i class="fas fa-chart-pie text-green-600 mt-1 mr-3"></i>
+                        <div>
+                            <h4 class="font-bold">Diversificación</h4>
+                            <p class="text-sm text-gray-600">Invierte en múltiples proyectos para reducir riesgo</p>
+                        </div>
+                    </div>
+                </div>
+                <template x-if="!loggedIn">
+                    <button @click="showLoginModal = true" class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition font-semibold">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Acceder al Panel
+                    </button>
+                </template>
+                <template x-if="loggedIn">
+                    <a href="#dashboard" class="inline-block bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition font-semibold">
+                        <i class="fas fa-tachometer-alt mr-2"></i>Ir a Mi Panel
+                    </a>
+                </template>
+            </div>
+        </div>
+    </div>
+</section>
+
+    <!-- Investment Types -->
+    <section class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center mb-12 gradient-text">Tipos de Inversión</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                    <div class="bg-purple-600 text-white p-6">
+                        <i class="fas fa-ticket-alt text-3xl mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">Derechos de Taquilla</h3>
+                        <p>Participa en los ingresos por venta de entradas</p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3 text-gray-600 mb-6">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-purple-600 mt-1 mr-2"></i>
+                                <span>Retornos a corto plazo</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-purple-600 mt-1 mr-2"></i>
+                                <span>Pagos mensuales durante la temporada</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-purple-600 mt-1 mr-2"></i>
+                                <span>Ideal para primeros inversores</span>
+                            </li>
+                        </ul>
+                        <div class="text-center">
+                            <span class="text-sm text-gray-500">Retorno esperado:</span>
+                            <p class="text-2xl font-bold text-purple-600">8-15%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                    <div class="bg-indigo-600 text-white p-6">
+                        <i class="fas fa-film text-3xl mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">Derechos de Explotación</h3>
+                        <p>Participa en ingresos por grabaciones y streaming</p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3 text-gray-600 mb-6">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-indigo-600 mt-1 mr-2"></i>
+                                <span>Ingresos a medio/largo plazo</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-indigo-600 mt-1 mr-2"></i>
+                                <span>Pagos trimestrales por 3-5 años</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-indigo-600 mt-1 mr-2"></i>
+                                <span>Mayor potencial de crecimiento</span>
+                            </li>
+                        </ul>
+                        <div class="text-center">
+                            <span class="text-sm text-gray-500">Retorno esperado:</span>
+                            <p class="text-2xl font-bold text-indigo-600">12-25%</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="bg-white rounded-xl shadow-md overflow-hidden card-hover">
+                    <div class="bg-green-600 text-white p-6">
+                        <i class="fas fa-tshirt text-3xl mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">Merchandising</h3>
+                        <p>Participa en ventas de productos derivados</p>
+                    </div>
+                    <div class="p-6">
+                        <ul class="space-y-3 text-gray-600 mb-6">
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-600 mt-1 mr-2"></i>
+                                <span>Ingresos complementarios</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-600 mt-1 mr-2"></i>
+                                <span>Pagos semestrales</span>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check text-green-600 mt-1 mr-2"></i>
+                                <span>Baja correlación con otros activos</span>
+                            </li>
+                        </ul>
+                        <div class="text-center">
+                            <span class="text-sm text-gray-500">Retorno esperado:</span>
+                            <p class="text-2xl font-bold text-green-600">5-10%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center mb-12 gradient-text">Preguntas Frecuentes</h2>
+            
+            <div class="space-y-6">
+                <div class="border border-gray-200 rounded-xl overflow-hidden">
+                    <button class="flex justify-between items-center w-full p-6 text-left hover:bg-gray-50 transition">
+                        <h3 class="text-xl font-bold">¿Cuál es la inversión mínima?</h3>
+                        <i class="fas fa-chevron-down text-purple-600 transition-transform duration-300"></i>
+                    </button>
+                    <div class="px-6 pb-6 hidden">
+                        <p class="text-gray-600">La inversión mínima es de 100 USDT/USDC. Esto permite acceder a la mayoría de los espectáculos disponibles en la plataforma.</p>
+                    </div>
+                </div>
+                
+                <div class="border border-gray-200 rounded-xl overflow-hidden">
+                    <button class="flex justify-between items-center w-full p-6 text-left hover:bg-gray-50 transition">
+                        <h3 class="text-xl font-bold">¿Cómo se calculan las regalías?</h3>
+                        <i class="fas fa-chevron-down text-purple-600 transition-transform duration-300"></i>
+                    </button>
+                    <div class="px-6 pb-6 hidden">
+                        <p class="text-gray-600">Las regalías se calculan en base al porcentaje de tokens que posees y los ingresos netos del espectáculo. Recibirás pagos mensuales mientras el espectáculo genere ingresos.</p>
+                    </div>
+                </div>
+                
+                <div class="border border-gray-200 rounded-xl overflow-hidden">
+                    <button class="flex justify-between items-center w-full p-6 text-left hover:bg-gray-50 transition">
+                        <h3 class="text-xl font-bold">¿Puedo vender mis tokens?</h3>
+                        <i class="fas fa-chevron-down text-purple-600 transition-transform duration-300"></i>
+                    </button>
+                    <div class="px-6 pb-6 hidden">
+                        <p class="text-gray-600">Sí, contamos con un mercado secundario donde puedes vender tus tokens a otros inversores. La plataforma cobra una comisión del 1.5% por cada transacción.</p>
+                    </div>
+                </div>
+                
+                <div class="border border-gray-200 rounded-xl overflow-hidden">
+                    <button class="flex justify-between items-center w-full p-6 text-left hover:bg-gray-50 transition">
+                        <h3 class="text-xl font-bold">¿Qué riesgos existen?</h3>
+                        <i class="fas fa-chevron-down text-purple-600 transition-transform duration-300"></i>
+                    </button>
+                    <div class="px-6 pb-6 hidden">
+                        <p class="text-gray-600">Como cualquier inversión, existen riesgos. Los espectáculos pueden no alcanzar el éxito esperado. Recomendamos diversificar y no invertir más de lo que puedas permitirte perder.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 bg-purple-600 text-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h2 class="text-3xl font-bold mb-6">¿Listo para comenzar?</h2>
+            <p class="text-xl mb-8">Únete a nuestra plataforma y comienza a invertir en el futuro de la cultura.</p>
+            <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
+                <button @click="showLoginModal = true" class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                    Crear Cuenta Gratis
+                </button>
+                <button @click="showUsdcModal = true" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition">
+                    Comprar USDT/USDC
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 gradient-text">CulturaToken</h3>
+                    <p class="text-gray-400">Democratizando la inversión en arte y cultura a través de la tecnología blockchain.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Explorar</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="index.html#shows" class="hover:text-white transition">Espectáculos</a></li>
+                        <li><a href="artistas.html" class="hover:text-white transition">Artistas</a></li>
+                        <li><a href="blog.html" class="hover:text-white transition">Blog</a></li>
+                        <li><a href="guia-inversion.html" class="hover:text-white transition">Guía</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Recursos</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="index.html#token" class="hover:text-white transition">Token CTK</a></li>
+                        <li><a href="#" class="hover:text-white transition">Guía de Inversión</a></li>
+                        <li><a href="#" class="hover:text-white transition">Roadmap</a></li>
+                        <li><a href="#" class="hover:text-white transition">Marketplace</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Legal</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Términos y Condiciones</a></li>
+                        <li><a href="#" class="hover:text-white transition">Política de Privacidad</a></li>
+                        <li><a href="#" class="hover:text-white transition">Documentación Legal</a></li>
+                        <li><a href="#" class="hover:text-white transition">Whitepaper</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>© 2025 CulturaToken. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
+    <script src="js/app.js"></script>
+	
+	
+    
+    <script>
+        // Simple FAQ toggle functionality
+        document.querySelectorAll('.border-gray-200 button').forEach(button => {
+            button.addEventListener('click', () => {
+                const content = button.nextElementSibling;
+                const icon = button.querySelector('i');
+                
+                content.classList.toggle('hidden');
+                icon.classList.toggle('rotate-180');
+            });
+        });
+    </script>
+</body>
+</html>

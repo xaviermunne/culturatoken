@@ -1,0 +1,19 @@
+<section class="dao-voting">
+  <h2>Gobernanza DAO</h2>
+  
+  <div class="proposal" x-data="{ selectedVote: null }">
+    <h3>Propuesta #1: Aumentar royalties para espectáculos de danza</h3>
+    <p>Actual: 10% | Propuesto: 15%</p>
+    
+    <div class="vote-options">
+      <button @click="voteForProposal(1, 'yes'); selectedVote='yes'" 
+              :class="{ 'active': selectedVote === 'yes' }">
+        👍 A favor
+      </button>
+      <button @click="voteForProposal(1, 'no'); selectedVote='no'"
+              :class="{ 'active': selectedVote === 'no' }">
+        👎 En contra
+      </button>
+    </div>
+  </div>
+</section>
