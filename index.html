@@ -4,9 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CulturaToken - Plataforma de Inversión en Espectáculos Culturales</title>
+    <!-- Preloads -->
+    <link rel="preload" href="css/styles.css" as="style">
+    <link rel="preload" href="js/app.js" as="script">
+    <!-- Styles -->
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.css">
+    <!-- Alpine.js para interactividad -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 </head>
 
 <body class="bg-gray-50" x-data="appState()" x-cloak x-init="init()">
@@ -26,18 +32,20 @@
                         <a href="#dashboard" class="text-gray-700 hover:text-purple-600 transition">Mi Panel</a>
                     </template>
                 </div>
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center space-x-4" id="auth-buttons-container">
                     <template x-if="!loggedIn">
-                        <button @click="showLoginModal = true" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                        <button @click="showLoginModal = true" class="auth-button">
                             <i class="fas fa-sign-in-alt mr-2"></i>Acceder
                         </button>
                     </template>
                     <template x-if="loggedIn">
-                         <button @click="logout()" class="text-gray-500 hover:text-purple-600 transition">
+                        <button @click="logout()" class="text-gray-500 hover:text-purple-600 transition">
                             <i class="fas fa-sign-out-alt mr-2"></i>Salir
                         </button>
                     </template>
-                    <button id="connectWallet" @click="connectPhantom()" :class="phantomConnected ? 'bg-green-600' : 'bg-gray-700'" class="text-white px-4 py-2 rounded-lg hover:bg-opacity-80 transition">
+                    <button id="connectWallet" @click="connectPhantom()" 
+                            :class="phantomConnected ? 'bg-green-600' : 'wallet-button'" 
+                            class="text-white px-4 py-2 rounded-lg hover:bg-opacity-80 transition">
                         <i class="fas fa-wallet mr-2"></i>
                         <span x-text="phantomConnected ? 'Phantom Conectado' : 'Conectar Phantom'"></span>
                     </button>
@@ -77,189 +85,68 @@
             </div>
         </div>
     </section>
-	
-    <!-- Platform Stats Section - Nueva sección añadida -->
+    
+    <!-- Platform Stats Section -->
     <section class="py-16 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-3xl font-bold text-center mb-12 gradient-text">Impacto de la Plataforma</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8" id="stats-container">
                 <div class="bg-gradient-to-br from-purple-100 to-indigo-100 p-6 rounded-xl text-center">
-                    <p class="text-4xl font-bold text-purple-600 mb-2" x-text="formatCurrency(4250000)"></p>
+                    <p class="text-4xl font-bold text-purple-600 mb-2" id="total-invested">$0.00</p>
                     <p class="text-gray-700">USDT total invertidos</p>
                     <p class="text-sm text-gray-500 mt-2">Por nuestra comunidad de inversores</p>
                 </div>
                 <div class="bg-gradient-to-br from-indigo-100 to-blue-100 p-6 rounded-xl text-center">
-                    <p class="text-4xl font-bold text-indigo-600 mb-2" x-text="formatCurrency(850000)"></p>
-                    <p class="text-gray-700">CTK repartidos</p>
-                    <p class="text-sm text-gray-500 mt-2">Entre inversores y artistas</p>
+                    <p class="text-4xl font-bold text-indigo-600 mb-2" id="community-count">0</p>
+                    <p class="text-gray-700">Inversores activos</p>
+                    <p class="text-sm text-gray-500 mt-2">En nuestra comunidad</p>
                 </div>
                 <div class="bg-gradient-to-br from-blue-100 to-green-100 p-6 rounded-xl text-center">
-                    <p class="text-4xl font-bold text-blue-600 mb-2">125+</p>
-                    <p class="text-gray-700">Espectáculos financiados</p>
-                    <p class="text-sm text-gray-500 mt-2">En 15 países diferentes</p>
+                    <p class="text-4xl font-bold text-blue-600 mb-2" id="ctk-distributed">0 CTK</p>
+                    <p class="text-gray-700">Distribuidos</p>
+                    <p class="text-sm text-gray-500 mt-2">Entre inversores y artistas</p>
                 </div>
             </div>
         </div>
     </section>
-    
-    <!-- User Dashboard -->
-    <template x-if="loggedIn">
-        <section id="dashboard" class="py-20 bg-white">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <h2 class="text-4xl font-bold text-center mb-6 gradient-text" x-text="`Bienvenido, ${user.email.split('@')[0]}`"></h2>
-                <p class="text-center text-gray-600 mb-12">Este es tu centro de operaciones para gestionar tus inversiones y regalías.</p>
+	    <!-- Loading Indicator -->
+    <div id="loading-indicator" style="display: none;" class="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+            <p class="text-lg font-medium">Cargando datos...</p>
+            <p class="text-sm text-gray-500 mt-2" id="loading-message">Por favor espere</p>
+        </div>
+    </div>
 
-                <!-- Wallet & Royalties -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                    <div class="bg-gray-100 p-6 rounded-xl">
-                        <h3 class="font-bold text-lg mb-4"><i class="fas fa-wallet mr-2"></i>Mi Monedero</h3>
-                        <p class="text-sm text-gray-500 break-all" x-text="shortenAddress(user.walletAddress)"></p>
-                        <div class="mt-4">
-                            <p class="text-2xl font-bold" x-text="`${user.balanceUSDC.toFixed(2)} USDT/USDC`"></p>
-                            <p class="text-2xl font-bold mt-2" x-text="`${user.balanceCTK.toFixed(2)} CTK`"></p>
-                        </div>
-                    </div>
-                    <div class="bg-gray-100 p-6 rounded-xl">
-                        <h3 class="font-bold text-lg mb-4"><i class="fas fa-money-bill-wave mr-2"></i>Regalías Acumuladas</h3>
-                        <p class="text-3xl font-bold text-green-600" x-text="`$${user.royalties.toFixed(2)}`"></p>
-                        <p class="text-sm text-gray-500">Listas para ser reclamadas.</p>
-                        <button @click="openRoyaltiesModal()" class="mt-4 text-sm text-purple-600 hover:underline">
-                            Ver detalles
-                        </button>
-                    </div>
-                    <div class="bg-gray-100 p-6 rounded-xl flex flex-col justify-center">
-                        <h3 class="font-bold text-lg mb-4"><i class="fas fa-chart-line mr-2"></i>Mi Posición</h3>
-                        <p class="text-3xl font-bold" x-text="`#${user.position}`"></p>
-                        <p class="text-sm text-gray-500" x-text="`De ${leaderboard.length} inversores`"></p>
-                    </div>
-                </div>
-
-                <!-- My Investments -->
-                <div>
-                    <div class="flex justify-between items-center mb-6">
-                        <h3 class="text-2xl font-bold">Mis Inversiones</h3>
-                        <p class="text-lg font-semibold" x-text="`Total invertido: $${user.totalInvested.toFixed(2)}`"></p>
-                    </div>
-                    <div class="space-y-4">
-                        <template x-if="user.investments.length === 0">
-                            <div class="bg-gray-100 p-8 rounded-xl text-center">
-                                <p class="text-gray-500 mb-4">Aún no has invertido en ningún espectáculo.</p>
-                                <a href="#shows" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
-                                    Explorar Espectáculos
-                                </a>
-                            </div>
-                        </template>
-                        <template x-for="investment in user.investments" :key="investment.id">
-                            <div class="bg-white p-6 rounded-xl shadow-md flex items-center justify-between border-l-4 border-purple-500">
-                                <div>
-                                    <p class="font-bold text-lg" x-text="investment.name"></p>
-                                    <p class="text-sm text-gray-600" x-text="`${investment.tokens} Tokens - $${investment.totalValue.toFixed(2)}`"></p>
-                                    <p class="text-xs text-gray-500 mt-1" x-text="`Invertido el ${new Date(investment.date).toLocaleDateString()}`"></p>
-                                </div>
-                                <div class="text-right">
-                                    <p class="font-semibold" x-text="`ROI: ${investment.roi}%`"></p>
-                                    <span class="text-xs px-2 py-1 rounded-full" 
-                                          :class="{
-                                            'bg-green-100 text-green-800': investment.status === 'active',
-                                            'bg-blue-100 text-blue-800': investment.status === 'completed',
-                                            'bg-yellow-100 text-yellow-800': investment.status === 'pending'
-                                          }"
-                                          x-text="investment.status === 'active' ? 'Activo' : investment.status === 'completed' ? 'Completado' : 'Pendiente'">
-                                    </span>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </template>
-
-    <!-- Shows Carousel -->
+    <!-- Shows Section -->
     <section id="shows" class="py-20 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-bold text-center mb-12 gradient-text">Espectáculos Destacados</h2>
             
-            <!-- AI Recommendations -->
-            <template x-if="loggedIn && aiRecommendations.length > 0">
-                <div class="mb-12">
+            <!-- AI Recommendations (solo para usuarios logueados) -->
+            <template x-if="loggedIn">
+                <div id="recommended-shows" class="mb-12">
                     <div class="flex justify-between items-center mb-6">
                         <h3 class="text-2xl font-bold">Recomendados para ti</h3>
-                        <p class="text-sm text-gray-600" x-text="`Basado en tus preferencias`"></p>
+                        <p class="text-sm text-gray-600">Basado en tus preferencias</p>
                     </div>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <template x-for="show in aiRecommendations.slice(0, 3)" :key="show.id">
-                            <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
-                                <img :src="show.image || 'https://images.unsplash.com/photo-1547153760-18fc86324498?q=80&w=870&auto=format&fit=crop'" :alt="show.name" class="w-full h-48 object-cover">
-                                <div class="p-6">
-                                    <span class="text-sm text-purple-600 font-semibold capitalize" x-text="show.genre"></span>
-                                    <h3 class="text-xl font-bold my-2" x-text="show.name"></h3>
-                                    <p class="text-gray-600 mb-4 text-sm" x-text="show.description"></p>
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
-                                        <div class="bg-purple-600 h-2.5 rounded-full" :style="`width: ${show.funded}%`"></div>
-                                    </div>
-                                    <div class="flex justify-between text-sm font-medium text-gray-600 mb-4">
-                                        <span><strong class="text-purple-700" x-text="`${show.funded}%`"></strong> Financiado</span>
-                                        <span>ROI: <strong x-text="`${show.roi}%`"></strong></span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <span class="text-2xl font-bold" x-text="`$${show.pricePerToken}`"></span>
-                                            <span class="text-gray-600 text-sm">/ token</span>
-                                        </div>
-                                        <button @click="openInvestmentModal(show.id)" class="bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 transition">
-                                            Invertir
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="recommended-container">
+                        <!-- Contenido dinámico desde uiUpdater.js -->
                     </div>
                 </div>
             </template>
             
-            <div class="swiper-container relative">
-                <div class="swiper-wrapper pb-10">
-                    <template x-for="show in shows" :key="show.id">
-                        <div class="swiper-slide">
-                            <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover mx-4">
-                                <img :src="show.image || 'https://images.unsplash.com/photo-1547153760-18fc86324498?q=80&w=870&auto=format&fit=crop'" :alt="show.name" class="w-full h-48 object-cover">
-                                <div class="p-6">
-                                    <span class="text-sm text-purple-600 font-semibold capitalize" x-text="show.genre"></span>
-                                    <h3 class="text-xl font-bold my-2" x-text="show.name"></h3>
-                                    <p class="text-gray-600 mb-4 text-sm" x-text="show.description"></p>
-                                    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
-                                        <div class="bg-purple-600 h-2.5 rounded-full" :style="`width: ${show.funded}%`"></div>
-                                    </div>
-                                    <div class="flex justify-between text-sm font-medium text-gray-600 mb-4">
-                                        <span><strong class="text-purple-700" x-text="`${show.funded}%`"></strong> Financiado</span>
-                                        <span>ROI: <strong x-text="`${show.roi}%`"></strong></span>
-                                    </div>
-                                    <div class="flex justify-between items-center">
-                                        <div>
-                                            <span class="text-2xl font-bold" x-text="`$${show.pricePerToken}`"></span>
-                                            <span class="text-gray-600 text-sm">/ token</span>
-                                        </div>
-                                        <button @click="openInvestmentModal(show.id)" class="bg-purple-600 text-white px-5 py-2 rounded-lg hover:bg-purple-700 transition">
-                                            Invertir
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </template>
+            <!-- Todos los espectáculos -->
+            <div id="shows-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Espectáculos se cargarán aquí dinámicamente -->
+                <div class="text-center py-12 text-gray-500">
+                    <i class="fas fa-spinner fa-spin fa-2x mb-4"></i>
+                    <p>Cargando espectáculos...</p>
                 </div>
-                
-                <!-- Navigation buttons -->
-                <div class="swiper-button-next text-purple-600"></div>
-                <div class="swiper-button-prev text-purple-600"></div>
-                
-                <!-- Pagination -->
-                <div class="swiper-pagination"></div>
             </div>
         </div>
     </section>
-    
+
     <!-- How It Works -->
     <section id="how-it-works" class="py-20 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -270,148 +157,73 @@
                         <i class="fas fa-user-plus text-purple-600 text-3xl"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-2">1. Crea tu Cuenta</h3>
-                    <p class="text-gray-600">Regístrate en segundos. Creamos un monedero digital seguro y fácil de usar para ti al instante.</p>
+                    <p class="text-gray-600">Regístrate en segundos con email o tu wallet. No necesitas experiencia previa.</p>
                 </div>
                 <div class="text-center p-6">
                     <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-5">
                         <i class="fas fa-coins text-purple-600 text-3xl"></i>
                     </div>
-                    <h3 class="text-xl font-bold mb-2">2. Invierte con Facilidad</h3>
-                    <p class="text-gray-600">Explora espectáculos, elige tu favorito e invierte desde 100 USDT. Puedes comprar cripto directamente en la plataforma.</p>
+                    <h3 class="text-xl font-bold mb-2">2. Invierte Fácilmente</h3>
+                    <p class="text-gray-600">Desde 100 USDT puedes participar en espectáculos con ROI estimado del 8-25%.</p>
                 </div>
                 <div class="text-center p-6">
                     <div class="w-20 h-20 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-5">
                         <i class="fas fa-chart-line text-purple-600 text-3xl"></i>
                     </div>
                     <h3 class="text-xl font-bold mb-2">3. Recibe Regalías</h3>
-                    <p class="text-gray-600">Obtén ganancias de la venta de entradas y merchandising. Cobra tus regalías en cripto (USDT) o en nuestro token (CTK).</p>
+                    <p class="text-gray-600">Ganancias automáticas por venta de entradas, streaming y merchandising.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Testimonials -->
-    <section class="py-20 bg-gray-50">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-4xl font-bold text-center mb-12 gradient-text">Testimonios de Inversores</h2>
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="bg-white p-6 rounded-xl shadow-md">
-                    <div class="flex items-center mb-4">
-                        <img src="https://randomuser.me/api/portraits/women/43.jpg" alt="Testimonial" class="w-12 h-12 rounded-full mr-4">
-                        <div>
-                            <h4 class="font-bold">María González</h4>
-                            <p class="text-sm text-gray-600">Inversora desde 2023</p>
-                        </div>
+    <!-- User Dashboard (solo visible cuando loggedIn) -->
+    <template x-if="loggedIn">
+        <section id="dashboard" class="py-20 bg-white">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-4xl font-bold text-center mb-6 gradient-text" x-text="`Bienvenido, ${user.email.split('@')[0]}`"></h2>
+                
+                <!-- Wallet Summary -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                    <div class="bg-gray-100 p-6 rounded-xl">
+                        <h3 class="font-bold text-lg mb-4"><i class="fas fa-wallet mr-2"></i>Balance</h3>
+                        <p class="text-2xl font-bold" id="user-balance-usd">$0.00 USDT</p>
+                        <p class="text-2xl font-bold mt-2" id="user-balance-ctk">0 CTK</p>
                     </div>
-                    <p class="text-gray-700">"He obtenido un retorno del 15% en solo 6 meses. La plataforma es muy intuitiva y el equipo siempre está disponible para resolver dudas."</p>
-                    <div class="flex mt-4">
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                    </div>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-md">
-                    <div class="flex items-center mb-4">
-                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Testimonial" class="w-12 h-12 rounded-full mr-4">
-                        <div>
-                            <h4 class="font-bold">Carlos Martínez</h4>
-                            <p class="text-sm text-gray-600">Inversor desde 2022</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-700">"Me encanta apoyar el arte y además obtener beneficios. He diversificado en 5 espectáculos diferentes con excelentes resultados."</p>
-                    <div class="flex mt-4">
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star-half-alt text-yellow-400"></i>
-                    </div>
-                </div>
-                <div class="bg-white p-6 rounded-xl shadow-md">
-                    <div class="flex items-center mb-4">
-                        <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Testimonial" class="w-12 h-12 rounded-full mr-4">
-                        <div>
-                            <h4 class="font-bold">Laura Fernández</h4>
-                            <p class="text-sm text-gray-600">Artista e Inversora</p>
-                        </div>
-                    </div>
-                    <p class="text-gray-700">"Como artista, esta plataforma me ha permitido financiar mi obra. Como inversora, he descubierto talento increíble y obtenido buenos retornos."</p>
-                    <div class="flex mt-4">
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                        <i class="fas fa-star text-yellow-400"></i>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Leaderboard -->
-    <section class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-4xl font-bold text-center mb-12 gradient-text">Ranking de Inversores</h2>
-            <div class="bg-gray-100 rounded-xl p-6">
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-200">
-                            <tr>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Posición</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inversor</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Inversión Total</th>
-                                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">CTK Acumulados</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            <template x-for="(investor, index) in getPaginatedLeaderboard()" :key="investor.position">
-                                <tr :class="{
-                                    'bg-purple-50': investor.position === 1,
-                                    'bg-yellow-50 border-2 border-yellow-200': loggedIn && user.email.includes(investor.name.toLowerCase())
-                                }">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="investor.position"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="investor.name"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="formatCurrency(investor.invested)"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="`${investor.ctk.toLocaleString()} CTK`"></td>
-                                </tr>
-                            </template>
-                            <template x-if="loggedIn && !getPaginatedLeaderboard().some(i => user.email.includes(i.name.toLowerCase()))">
-                                <tr class="bg-yellow-50 border-2 border-yellow-200">
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900" x-text="user.position"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="user.email.split('@')[0]"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="formatCurrency(user.totalInvested)"></td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500" x-text="`${user.balanceCTK.toFixed(0)} CTK`"></td>
-                                </tr>
-                            </template>
-                        </tbody>
-                    </table>
-                </div>
-                <div class="flex justify-between items-center mt-4">
-                    <div class="text-sm text-gray-500">
-                        * El ranking se actualiza cada 24 horas. Los CTK se calculan en base a 1 CTK por cada $5 invertidos.
-                    </div>
-                    <div class="flex space-x-2" x-show="leaderboard.length > itemsPerPage">
-                        <button @click="changeLeaderboardPage(currentLeaderboardPage - 1)" 
-                                :disabled="currentLeaderboardPage === 1"
-                                class="px-3 py-1 rounded border" 
-                                :class="currentLeaderboardPage === 1 ? 'bg-gray-100 text-gray-400' : 'hover:bg-gray-200'">
-                            Anterior
-                        </button>
-                        <button @click="changeLeaderboardPage(currentLeaderboardPage + 1)" 
-                                :disabled="currentLeaderboardPage * itemsPerPage >= leaderboard.length"
-                                class="px-3 py-1 rounded border" 
-                                :class="currentLeaderboardPage * itemsPerPage >= leaderboard.length ? 'bg-gray-100 text-gray-400' : 'hover:bg-gray-200'">
-                            Siguiente
+                    <div class="bg-gray-100 p-6 rounded-xl">
+                        <h3 class="font-bold text-lg mb-4"><i class="fas fa-money-bill-wave mr-2"></i>Regalías</h3>
+                        <p class="text-3xl font-bold text-green-600" id="user-royalties">$0.00</p>
+                        <button @click="openRoyaltiesModal()" class="mt-4 text-sm text-purple-600 hover:underline">
+                            Ver detalles
                         </button>
                     </div>
+                    <div class="bg-gray-100 p-6 rounded-xl flex flex-col justify-center">
+                        <h3 class="font-bold text-lg mb-4"><i class="fas fa-trophy mr-2"></i>Ranking</h3>
+                        <p class="text-3xl font-bold" id="user-position">#0</p>
+                        <p class="text-sm text-gray-500" id="user-position-detail">De 0 inversores</p>
+                    </div>
+                </div>
+                
+                <!-- Investments Grid -->
+                <div>
+                    <div class="flex justify-between items-center mb-6">
+                        <h3 class="text-2xl font-bold">Mis Inversiones</h3>
+                        <p class="text-lg font-semibold" id="total-invested-user">Total: $0.00</p>
+                    </div>
+                    <div class="space-y-4" id="user-investments-container">
+                        <!-- Inversiones se cargarán aquí dinámicamente -->
+                        <div class="bg-gray-100 p-8 rounded-xl text-center">
+                            <p class="text-gray-500 mb-4">Aún no has realizado inversiones</p>
+                            <a href="#shows" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
+                                Explorar Espectáculos
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-    </section>
-
-    <!-- CTK Token Section -->
+        </section>
+    </template>
+	    <!-- CTK Token Section -->
     <section id="token" class="py-20 bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <h2 class="text-4xl font-bold text-center mb-12 gradient-text">CulturalToken (CTK)</h2>
@@ -420,28 +232,20 @@
                     <h3 class="text-2xl font-bold mb-4">Beneficios del Token CTK</h3>
                     <ul class="space-y-4">
                         <li class="flex items-start">
-                            <div class="flex-shrink-0 h-6 w-6 text-purple-600">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <p class="ml-3 text-gray-700"><strong>Regalías mejoradas:</strong> Obtén un 10% más de regalías cuando las cobras en CTK.</p>
+                            <i class="fas fa-check-circle text-purple-600 mt-1 mr-2"></i>
+                            <p class="text-gray-700"><strong>+10% en regalías</strong> al cobrar en CTK</p>
                         </li>
                         <li class="flex items-start">
-                            <div class="flex-shrink-0 h-6 w-6 text-purple-600">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <p class="ml-3 text-gray-700"><strong>Acceso exclusivo:</strong> Desbloquea contenido y eventos especiales para holders de CTK.</p>
+                            <i class="fas fa-check-circle text-purple-600 mt-1 mr-2"></i>
+                            <p class="text-gray-700"><strong>Acceso VIP</strong> a eventos y contenido exclusivo</p>
                         </li>
                         <li class="flex items-start">
-                            <div class="flex-shrink-0 h-6 w-6 text-purple-600">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <p class="ml-3 text-gray-700"><strong>Votaciones:</strong> Participa en decisiones sobre futuros espectáculos y artistas.</p>
+                            <i class="fas fa-check-circle text-purple-600 mt-1 mr-2"></i>
+                            <p class="text-gray-700"><strong>Votaciones</strong> en decisiones artísticas</p>
                         </li>
                         <li class="flex items-start">
-                            <div class="flex-shrink-0 h-6 w-6 text-purple-600">
-                                <i class="fas fa-check-circle"></i>
-                            </div>
-                            <p class="ml-3 text-gray-700"><strong>Descuentos:</strong> 15% de descuento en entradas para espectáculos en los que inviertas.</p>
+                            <i class="fas fa-check-circle text-purple-600 mt-1 mr-2"></i>
+                            <p class="text-gray-700"><strong>Descuentos</strong> en entradas y merchandising</p>
                         </li>
                     </ul>
                     <div class="mt-8">
@@ -451,367 +255,43 @@
                     </div>
                 </div>
                 <div class="bg-white p-8 rounded-xl shadow-lg">
-                    <h3 class="text-2xl font-bold mb-4">Distribución de CTK</h3>
+                    <h3 class="text-2xl font-bold mb-4">Distribución de Tokens</h3>
                     <div class="h-64">
                         <canvas id="ctkChart"></canvas>
                     </div>
-                    <div class="mt-4 grid grid-cols-2 gap-4">
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 bg-purple-600 rounded-full mr-2"></div>
-                            <span class="text-sm">Inversores (60%)</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 bg-indigo-600 rounded-full mr-2"></div>
-                            <span class="text-sm">Artistas (20%)</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 bg-pink-600 rounded-full mr-2"></div>
-                            <span class="text-sm">Reserva (10%)</span>
-                        </div>
-                        <div class="flex items-center">
-                            <div class="w-4 h-4 bg-yellow-500 rounded-full mr-2"></div>
-                            <span class="text-sm">Equipo (10%)</span>
-                        </div>
-                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- FAQ Section -->
-    <section id="faq" class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-4xl font-bold text-center mb-12 gradient-text">Preguntas Frecuentes</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="bg-gray-50 p-6 rounded-xl">
-                    <h3 class="text-xl font-bold mb-3">¿Cómo funciona la tokenización de espectáculos?</h3>
-                    <p class="text-gray-700">Los derechos de autor y de explotación de los espectáculos se dividen en tokens digitales. Al comprar tokens, adquieres una participación en los ingresos futuros del espectáculo.</p>
-                </div>
-                <div class="bg-gray-50 p-6 rounded-xl">
-                    <h3 class="text-xl font-bold mb-3">¿Qué garantías tengo como inversor?</h3>
-                    <p class="text-gray-700">Todos los contratos son smart contracts auditados en blockchain. Los fondos se liberan gradualmente según hitos artísticos y los ingresos se distribuyen automáticamente.</p>
-                </div>
-                <div class="bg-gray-50 p-6 rounded-xl">
-                    <h3 class="text-xl font-bold mb-3">¿Puedo vender mis tokens?</h3>
-                    <p class="text-gray-700">Sí, existe un mercado secundario donde puedes vender tus tokens a otros inversores. La plataforma cobra una comisión del 1.5% por cada transacción.</p>
-                </div>
-                <div class="bg-gray-50 p-6 rounded-xl">
-                    <h3 class="text-xl font-bold mb-3">¿Cómo se calculan las regalías?</h3>
-                    <p class="text-gray-700">Las regalías se calculan en base al porcentaje de tokens que posees y los ingresos netos del espectáculo. Recibirás pagos mensuales mientras el espectáculo genere ingresos.</p>
-                </div>
-                <div class="bg-gray-50 p-6 rounded-xl">
-                    <h3 class="text-xl font-bold mb-3">¿Qué es el token CTK?</h3>
-                    <p class="text-gray-700">CTK es nuestro token nativo que ofrece beneficios adicionales como regalías mejoradas, acceso exclusivo y derechos de voto en decisiones artísticas.</p>
-                </div>
-                <div class="bg-gray-50 p-6 rounded-xl">
-                    <h3 class="text-xl font-bold mb-3">¿Cómo puedo retirar mis ganancias?</h3>
-                    <p class="text-gray-700">Puedes retirar tus USDT, USDC o CTK en cualquier momento a tu wallet externa o convertirlos a euros mediante nuestros socios de fiat on-ramp.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Newsletter -->
-    <section class="py-20 bg-purple-600 text-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h2 class="text-3xl font-bold mb-4">Mantente informado</h2>
-            <p class="text-xl mb-8 max-w-3xl mx-auto">Suscríbete a nuestro newsletter para recibir actualizaciones sobre nuevos espectáculos, oportunidades de inversión y noticias del mundo del arte tokenizado.</p>
-            <div class="max-w-md mx-auto flex">
-                <input type="email" placeholder="Tu email" class="flex-1 px-4 py-3 rounded-l-lg focus:outline-none text-gray-900">
-                <button class="bg-purple-800 px-6 py-3 rounded-r-lg hover:bg-purple-900 transition">Suscribirse</button>
-            </div>
-            <p class="text-sm mt-4 opacity-80">Prometemos no spamearte. Puedes darte de baja en cualquier momento.</p>
-        </div>
-    </section>
-
-    <!-- Roadmap -->
-    <section class="py-20 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 class="text-4xl font-bold text-center mb-12 gradient-text">Nuestro Roadmap</h2>
-            <div class="relative">
-                <!-- Línea vertical -->
-                <div class="hidden md:block absolute left-1/2 h-full w-1 bg-purple-200"></div>
-                
-                <!-- Items del roadmap -->
-                <div class="space-y-12">
-                    <!-- Item 1 -->
-                    <div class="relative md:grid md:grid-cols-2 gap-8">
-                        <div class="md:text-right md:pr-8">
-                            <h3 class="text-xl font-bold mb-2">Q1 2023</h3>
-                            <p class="text-gray-600">Lanzamiento de la plataforma con 5 espectáculos piloto</p>
-                        </div>
-                        <div class="hidden md:block"></div>
-                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 md:translate-y-0 w-6 h-6 bg-purple-600 rounded-full"></div>
-                    </div>
-                    
-                    <!-- Item 2 -->
-                    <div class="relative md:grid md:grid-cols-2 gap-8">
-                        <div class="hidden md:block"></div>
-                        <div class="md:text-left md:pl-8">
-                            <h3 class="text-xl font-bold mb-2">Q2 2023</h3>
-                            <p class="text-gray-600">Integración con Phantom Wallet y lanzamiento del token CTK</p>
-                        </div>
-                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 md:translate-y-0 w-6 h-6 bg-purple-600 rounded-full"></div>
-                    </div>
-                    
-                    <!-- Item 3 -->
-                    <div class="relative md:grid md:grid-cols-2 gap-8">
-                        <div class="md:text-right md:pr-8">
-                            <h3 class="text-xl font-bold mb-2">Q3 2023</h3>
-                            <p class="text-gray-600">Lanzamiento del mercado secundario para tokens</p>
-                        </div>
-                        <div class="hidden md:block"></div>
-                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 md:translate-y-0 w-6 h-6 bg-purple-600 rounded-full"></div>
-                    </div>
-                    
-                    <!-- Item 4 -->
-                    <div class="relative md:grid md:grid-cols-2 gap-8">
-                        <div class="hidden md:block"></div>
-                        <div class="md:text-left md:pl-8">
-                            <h3 class="text-xl font-bold mb-2">Q4 2023</h3>
-                            <p class="text-gray-600">Expansión internacional con espectáculos de 3 países</p>
-                        </div>
-                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 md:translate-y-0 w-6 h-6 bg-purple-600 rounded-full"></div>
-                    </div>
-                    
-                    <!-- Item 5 -->
-                    <div class="relative md:grid md:grid-cols-2 gap-8">
-                        <div class="md:text-right md:pr-8">
-                            <h3 class="text-xl font-bold mb-2">2024</h3>
-                            <p class="text-gray-600">Lanzamiento de la app móvil y programa de recompensas CTK</p>
-                        </div>
-                        <div class="hidden md:block"></div>
-                        <div class="absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2 md:translate-y-0 w-6 h-6 bg-purple-600 rounded-full"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Modals -->
-    <!-- Login/Register Modal -->
-    <div x-show="showLoginModal" @keydown.escape.window="showLoginModal = false" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-        <div @click.away="showLoginModal = false" class="bg-white rounded-lg p-6 w-full max-w-md">
-            <h3 class="text-xl font-bold mb-4" x-text="isRegistering ? 'Crear cuenta' : 'Iniciar sesión'"></h3>
-            
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Email</label>
-                    <input x-model="auth.email" type="email" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
-                </div>
-                
-                <div>
-                    <label class="block text-sm font-medium text-gray-700">Contraseña</label>
-                    <input x-model="auth.password" type="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
-                </div>
-                
-                <template x-if="isRegistering">
-                    <div>
-                        <label class="block text-sm font-medium text-gray-700">Confirmar Contraseña</label>
-                        <input x-model="auth.confirmPassword" type="password" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-purple-500 focus:ring-purple-500">
-                    </div>
-                </template>
-                
-                <template x-if="isRegistering">
-                    <div class="flex items-center">
-                        <input x-model="auth.termsAccepted" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-purple-600 focus:ring-purple-500">
-                        <label class="ml-2 block text-sm text-gray-700">
-                            Acepto los <a href="#" class="text-purple-600 hover:underline">Términos y Condiciones</a>
-                        </label>
-                    </div>
-                </template>
-                
-                <div x-show="error" class="text-red-600 text-sm" x-text="error"></div>
-                
-                <div class="flex justify-between items-center">
-                    <button @click="isRegistering = !isRegistering" class="text-sm text-purple-600 hover:underline">
-                        <span x-text="isRegistering ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate'"></span>
-                    </button>
-                    
-                    <button @click="isRegistering ? registerWithEmail() : login()" 
-                            :disabled="loading"
-                            class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition disabled:opacity-50">
-                        <span x-show="!loading" x-text="isRegistering ? 'Registrarse' : 'Iniciar sesión'"></span>
-                        <span x-show="loading" class="flex items-center">
-                            <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            Procesando...
-                        </span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Investment Modal -->
-    <div x-show="showInvestmentModal" @keydown.escape.window="closeInvestmentModal()" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal">
-        <div @click.away="closeInvestmentModal()" class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
-            <h3 class="text-2xl font-bold mb-1">Invertir en</h3>
-            <p class="gradient-text text-xl font-semibold mb-4" x-text="investment.name"></p>
-            
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Monto en USDT/USDC</label>
-                <input type="number" x-model.number="investment.amount" min="100" :max="investment.maxInvestment" step="10" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
-                <p class="text-xs text-gray-500 mt-1" x-text="`Mínimo: $100 - Máximo: $${investment.maxInvestment.toFixed(2)}`"></p>
-            </div>
-            
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Método de pago</label>
-                <select x-model="investment.paymentMethod" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    <option value="usdc">USDT/USDC</option>
-                    <option value="ctk">CTK</option>
-                </select>
-            </div>
-            
-            <div class="mb-6">
-                <p class="text-sm text-gray-600">Precio por token: <span x-text="`$${investment.price}`"></span></p>
-                <p class="text-lg font-bold">Tokens a recibir: <span x-text="`${(investment.amount / investment.price).toFixed(2)}`"></span></p>
-                <p class="text-sm text-purple-600 mt-1">CTK a ganar: <span x-text="`${(investment.amount / 5).toFixed(2)}`"></span></p>
-            </div>
-            
-            <div x-show="error" class="text-red-600 text-sm mb-4" x-text="error"></div>
-            
-            <div class="flex space-x-4">
-                <button @click="closeInvestmentModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">Cancelar</button>
-                <button @click="confirmInvestment()" 
-                        :disabled="loading"
-                        class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition disabled:opacity-50">
-                    <span x-show="!loading">Confirmar Inversión</span>
-                    <span x-show="loading" class="flex items-center justify-center">
-                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Procesando...
-                    </span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Buy USDC Modal -->
-    <div x-show="showUsdcModal" @keydown.escape.window="showUsdcModal = false" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal">
-        <div @click.away="showUsdcModal = false" class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
-            <h3 class="text-2xl font-bold mb-4">Comprar USDT/USDC</h3>
-            <p class="text-sm text-gray-600 mb-4">Compra stablecoins de forma segura para empezar a invertir. El mínimo es $100.</p>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Monto que pagas (USD)</label>
-                <input type="number" x-model.number="fiat.amount" min="100" max="10000" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="100">
-            </div>
-            <div class="mb-4">
-                <label class="block text-sm font-medium text-gray-700 mb-2">Método de pago</label>
-                <select x-model="fiat.paymentMethod" class="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500">
-                    <option value="credit_card">Tarjeta de Crédito</option>
-                    <option value="bank_transfer">Transferencia Bancaria</option>
-                    <option value="crypto">Criptomonedas</option>
-                </select>
-            </div>
-            <div class="bg-gray-50 p-4 rounded-lg mb-6">
-                <p class="text-sm text-gray-600">Comisión estimada (1-3%): <span x-text="`$${(fiat.amount * 0.02).toFixed(2)}`"></span></p>
-                <p class="text-lg font-bold text-green-600">Recibirás: <span x-text="`≈${(fiat.amount * 0.98).toFixed(2)}`"></span> USDT/USDC</p>
-            </div>
-            
-            <div x-show="error" class="text-red-600 text-sm mb-4" x-text="error"></div>
-            
-            <div class="flex space-x-4">
-                <button @click="showUsdcModal = false" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">Cancelar</button>
-                <button @click="buyUsdc()" 
-                        :disabled="loading"
-                        class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition disabled:opacity-50">
-                    <span x-show="!loading">Proceder a la Compra</span>
-                    <span x-show="loading" class="flex items-center justify-center">
-                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        Procesando...
-                    </span>
-                </button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Royalties Modal -->
-    <div x-show="showRoyaltiesModal" @keydown.escape.window="showRoyaltiesModal = false" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 modal">
-        <div @click.away="showRoyaltiesModal = false" class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
-            <h3 class="text-2xl font-bold mb-4">Tus Regalías</h3>
-            <p class="text-3xl font-bold text-green-600 mb-2" x-text="`$${user.royalties.toFixed(2)}`"></p>
-            <p class="text-sm text-gray-600 mb-6">Disponibles para reclamar</p>
-            
-            <div class="space-y-4 mb-6">
-                <template x-for="(show, index) in getUserShows()" :key="show.id">
-                    <div class="flex justify-between items-center border-b pb-2">
-                        <div>
-                            <p class="font-medium" x-text="show.name"></p>
-                            <p class="text-xs text-gray-500" x-text="`${show.genre} - ROI ${show.roi}%`"></p>
-                        </div>
-                        <p class="text-sm font-semibold" x-text="`$${(user.royalties * 0.4).toFixed(2)}`"></p>
-                    </div>
-                </template>
-            </div>
-            
-            <div class="bg-gray-50 p-4 rounded-lg mb-6">
-                <p class="text-sm text-gray-600 mb-2">Opciones de retiro:</p>
-                <div class="flex justify-between">
-                    <span class="text-sm">En USDT/USDC:</span>
-                    <span class="font-semibold" x-text="`$${user.royalties.toFixed(2)}`"></span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="text-sm">En CTK (con 10% bonus):</span>
-                    <span class="font-semibold" x-text="`${(user.royalties / 2.5 * 1.1).toFixed(2)} CTK`"></span>
-                </div>
-            </div>
-            
-            <div class="flex space-x-4">
-                <button @click="claimRoyalties('USDC')" 
-                        :disabled="loading"
-                        class="flex-1 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition disabled:opacity-50">
-                    Reclamar USDC
-                </button>
-                <button @click="claimRoyalties('CTK')" 
-                        :disabled="loading"
-                        class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition disabled:opacity-50">
-                    Reclamar CTK (+10%)
-                </button>
-            </div>
-        </div>
-    </div>
-    
     <!-- Footer -->
     <footer class="bg-gray-900 text-white py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
                 <div>
                     <h3 class="text-xl font-bold mb-4 gradient-text">CulturaToken</h3>
-                    <p class="text-gray-400">Democratizando la inversión en arte y cultura a través de la tecnología blockchain.</p>
+                    <p class="text-gray-400">Plataforma líder en inversión cultural mediante blockchain</p>
                 </div>
                 <div>
                     <h4 class="font-semibold mb-4">Explorar</h4>
                     <ul class="space-y-2 text-gray-400">
                         <li><a href="#shows" class="hover:text-white transition">Espectáculos</a></li>
-                        <li><a href="artistas.html" class="hover:text-white transition">Artistas</a></li>
-                        <li><a href="blog.html" class="hover:text-white transition">Blog</a></li>
-                        <li><a href="#faq" class="hover:text-white transition">FAQ</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="font-semibold mb-4">Recursos</h4>
-                    <ul class="space-y-2 text-gray-400">
                         <li><a href="#token" class="hover:text-white transition">Token CTK</a></li>
-                        <li><a href="guia-inversion.html" class="hover:text-white transition">Guía de Inversión</a></li>
-                        <li><a href="#" class="hover:text-white transition">Roadmap</a></li>
-                        <li><a href="#" class="hover:text-white transition">Marketplace</a></li>
+                        <li><a href="#how-it-works" class="hover:text-white transition">Cómo funciona</a></li>
                     </ul>
                 </div>
                 <div>
                     <h4 class="font-semibold mb-4">Legal</h4>
                     <ul class="space-y-2 text-gray-400">
-                        <li><a href="#" class="hover:text-white transition">Términos y Condiciones</a></li>
-                        <li><a href="#" class="hover:text-white transition">Política de Privacidad</a></li>
-                        <li><a href="#" class="hover:text-white transition">Documentación Legal</a></li>
-                        <li><a href="#" class="hover:text-white transition">Whitepaper</a></li>
+                        <li><a href="#" class="hover:text-white transition">Términos y condiciones</a></li>
+                        <li><a href="#" class="hover:text-white transition">Política de privacidad</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Contacto</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><i class="fas fa-envelope mr-2"></i> hola@culturatoken.com</li>
+                        <li><i class="fas fa-map-marker-alt mr-2"></i> Barcelona, España</li>
                     </ul>
                 </div>
             </div>
@@ -825,9 +305,49 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@9/swiper-bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Nuestros módulos (cargar en orden específico) -->
+    <script src="js/utils/eventBus.js"></script>
+    <script src="js/utils/formatters.js"></script>
+    <script src="js/utils/storage.js"></script>
+    <script src="js/services/auth/authService.js"></script>
+    <script src="js/services/transaction/transactionService.js"></script>
+    <script src="js/services/notification/notificationService.js"></script>
+    <script src="js/modules/uiUpdater.js"></script>
     <script src="js/app.js"></script>
+
+    <!-- Inicialización -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Configuración global de errores
+            window.onerror = function(message, source, lineno, colno, error) {
+                console.error("Error global:", error);
+                notificationService.add({
+                    title: 'Error inesperado',
+                    message: 'Ocurrió un problema. Por favor recarga la página.',
+                    type: 'error',
+                    persistent: true
+                });
+                return true;
+            };
+
+            // Inicializar la aplicación
+            const app = new CulturaTokenApp();
+            app.initialize()
+                .then(() => {
+                    console.log("Aplicación inicializada correctamente");
+                })
+                .catch(error => {
+                    console.error("Error inicializando app:", error);
+                    notificationService.add({
+                        title: 'Error de carga',
+                        message: 'No se pudo cargar la aplicación. Intenta recargar.',
+                        type: 'error'
+                    });
+                });
+        });
+    </script>
 </body>
 </html>

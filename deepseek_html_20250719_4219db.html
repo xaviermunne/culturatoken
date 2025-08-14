@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CulturaToken - Invierte en arte y espectáculos culturales</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/@solana/web3.js@1.70.1/lib/index.iife.min.js"></script>
+    <style>
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .hero-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+        .glass-effect {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .progress-bar {
+            transition: width 0.5s ease;
+        }
+        .modal {
+            backdrop-filter: blur(5px);
+        }
+        .royalty-badge {
+            background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        }
+        .token-badge {
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-white/90 backdrop-blur-md z-50 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <h1 class="text-2xl font-bold gradient-text">CulturaToken</h1>
+                </div>
+                <div class="hidden md:flex space-x-8">
+                    <a href="#shows" class="text-gray-700 hover:text-purple-600 transition">Espectáculos</a>
+                    <a href="#artists" class="text-gray-700 hover:text-purple-600 transition">Artistas</a>
+                    <a href="#how-it-works" class="text-gray-700 hover:text-purple-600 transition">Cómo funciona</a>
+                    <a href="#dashboard" class="text-gray-700 hover:text-purple-600 transition">Mi Cuenta</a>
+                </div>
+                <div class="flex items-center space-x-4">
+                    <div id="userWallet" class="hidden text-sm bg-gray-100 px-3 py-1 rounded-full">
+                        <span id="walletAddress"></span>
+                    </div>
+                    <button id="connectWallet" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                        <i class="fas fa-wallet mr-2"></i>Conectar Wallet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-bg pt-24 pb-20 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <h1 class="text-5xl font-bold mb-6">Invierte en la Cultura</h1>
+                    <p class="text-xl mb-8 opacity-90">Tokeniza espectáculos culturales y conviértete en copropietario. Desde $100 participa en el éxito de tus artistas y espectáculos favoritos.</p>
+                    <div class="flex space-x-4">
+                        <button id="exploreBtn" class="bg-white text-purple-600 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+                            Explorar Espectáculos
+                        </button>
+                        <button id="buyUsdcBtn" class="border-2 border-white text-white px-8 py-3 rounded-lg font-semibold hover:bg-white hover:text-purple-600 transition">
+                            Comprar USDC
+                        </button>
+                    </div>
+                </div>
+                <div class="relative">
+                    <div class="animate-float">
+                        <div class="glass-effect rounded-2xl p-8">
+                            <h3 class="text-2xl font-bold mb-4">Retorno Estimado</h3>
+                            <div class="text-4xl font-bold mb-2">12-18%</div>
+                            <p class="opacity-80">Rendimiento anual promedio</p>
+                            <div class="mt-4 flex items-center">
+                                <img src="https://cryptologos.cc/logos/usd-coin-usdc-logo.png" alt="USDC" class="h-8 mr-2">
+                                <img src="https://cryptologos.cc/logos/polygon-matic-logo.png" alt="Polygon" class="h-8 mr-2">
+                                <img src="https://cryptologos.cc/logos/solana-sol-logo.png" alt="Solana" class="h-8">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Section -->
+    <section class="py-16 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
+                <div>
+                    <div class="text-3xl font-bold text-purple-600 mb-2">$2.5M+</div>
+                    <p class="text-gray-600">Financiado a artistas</p>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-purple-600 mb-2">150+</div>
+                    <p class="text-gray-600">Espectáculos tokenizados</p>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-purple-600 mb-2">8,000+</div>
+                    <p class="text-gray-600">Inversores activos</p>
+                </div>
+                <div>
+                    <div class="text-3xl font-bold text-purple-600 mb-2">15%</div>
+                    <p class="text-gray-600">Rendimiento promedio</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Shows Grid -->
+    <section id="shows" class="py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center mb-12 gradient-text">Espectáculos Disponibles</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <!-- Show Card 1 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1547153760-18fc86324498?w=400" alt="Circo Moderno" class="w-full h-48 object-cover">
+                        <div class="absolute top-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm">
+                            78% Financiado
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Circo Moderno "El Último Sueño"</h3>
+                        <p class="text-gray-600 mb-4">Un espectáculo de circo contemporáneo que combina acrobacias, teatro y música en vivo.</p>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                <span>Progreso</span>
+                                <span>$78,000 / $100,000</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-purple-600 h-2 rounded-full progress-bar" style="width: 78%"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-2xl font-bold">$100</span>
+                                <span class="text-gray-600 text-sm">/ token</span>
+                            </div>
+                            <button onclick="openInvestmentModal('Circo Moderno', 100, '0x123...456')" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                                Invertir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Show Card 2 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400" alt="Teatro Independiente" class="w-full h-48 object-cover">
+                        <div class="absolute top-4 right-4 bg-green-600 text-white px-3 py-1 rounded-full text-sm">
+                            Activo
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Teatro "La Casa de Bernarda Alba"</h3>
+                        <p class="text-gray-600 mb-4">Clásico del teatro español dirigido por jóvenes talentos emergentes.</p>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                <span>Rendimiento Actual</span>
+                                <span class="text-green-600 font-semibold">+14.5%</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-2xl font-bold">$150</span>
+                                <span class="text-gray-600 text-sm">/ token</span>
+                            </div>
+                            <button onclick="openInvestmentModal('La Casa de Bernarda Alba', 150, '0x789...012')" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                                Comprar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Show Card 3 -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=400" alt="Concierto" class="w-full h-48 object-cover">
+                        <div class="absolute top-4 right-4 bg-orange-600 text-white px-3 py-1 rounded-full text-sm">
+                            Próximo
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">Concierto "Sinfonía de las Américas"</h3>
+                        <p class="text-gray-600 mb-4">Concierto sinfónico que fusiona música clásica con ritmos latinoamericanos.</p>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                <span>Mínimo</span>
+                                <span>$75,000</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-2xl font-bold">$125</span>
+                                <span class="text-gray-600 text-sm">/ token</span>
+                            </div>
+                            <button onclick="openInvestmentModal('Sinfonía de las Américas', 125, '0x345...678')" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                                Reservar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Show Card 4 - UTA Circ -->
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden card-hover">
+                    <div class="relative">
+                        <img src="https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?w=400" alt="UTA Circ No Matalàs" class="w-full h-48 object-cover">
+                        <div class="absolute top-4 right-4 bg-purple-600 text-white px-3 py-1 rounded-full text-sm">
+                            45% Financiado
+                        </div>
+                    </div>
+                    <div class="p-6">
+                        <h3 class="text-xl font-bold mb-2">UTA Circ "No Matalàs"</h3>
+                        <p class="text-gray-600 mb-4">Espectáculo de circo y teatro spooky-clown con acrobacias impactantes y narrativa oscura.</p>
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                <span>Progreso</span>
+                                <span>$45,000 / $100,000</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div class="bg-purple-600 h-2 rounded-full progress-bar" style="width: 45%"></div>
+                            </div>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <div>
+                                <span class="text-2xl font-bold">$90</span>
+                                <span class="text-gray-600 text-sm">/ token</span>
+                            </div>
+                            <button onclick="openInvestmentModal('UTA Circ No Matalàs', 90, '0x901...234')" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                                Invertir
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section id="how-it-works" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center mb-12 gradient-text">Cómo Funciona</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-search text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Explora</h3>
+                    <p class="text-gray-600">Descubre espectáculos culturales y artistas emergentes que necesitan financiación.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-coins text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Invierte</h3>
+                    <p class="text-gray-600">Compra tokens desde $100 y obtén derechos de propiedad intelectual sobre los espectáculos.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <i class="fas fa-chart-line text-white text-2xl"></i>
+                    </div>
+                    <h3 class="text-xl font-bold mb-2">Gana</h3>
+                    <p class="text-gray-600">Recibe ingresos por los derechos de propiedad y revende tus tokens cuando aumenten de valor.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard" class="py-20 bg-gray-50 hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 class="text-4xl font-bold text-center mb-12 gradient-text">Mi Cuenta</h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <!-- User Profile -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">Perfil de Usuario</h3>
+                    <div class="flex items-center mb-4">
+                        <div class="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center text-purple-600 text-2xl mr-4">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold" id="userName">Usuario</h4>
+                            <p class="text-gray-600 text-sm" id="userEmail">email@ejemplo.com</p>
+                        </div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">Wallet Principal</label>
+                        <div class="bg-gray-100 p-2 rounded-lg text-sm font-mono" id="userWalletAddress">0x000...000</div>
+                    </div>
+                    <button onclick="connectPhantom()" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition mb-2">
+                        <i class="fas fa-wallet mr-2"></i>Conectar Phantom Wallet
+                    </button>
+                    <button onclick="showFiatModal()" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                        <i class="fas fa-exchange-alt mr-2"></i>Convertir FIAT a USDC
+                    </button>
+                </div>
+                
+                <!-- Portfolio Summary -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">Mi Portafolio</h3>
+                    <div class="mb-6">
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-600">Balance Total</span>
+                            <span class="text-xl font-bold" id="totalBalance">$0.00</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-600">CTK Tokens</span>
+                            <span class="font-bold" id="ctkBalance">0 CTK</span>
+                        </div>
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="text-gray-600">USDC</span>
+                            <span class="font-bold" id="usdcBalance">0 USDC</span>
+                        </div>
+                    </div>
+                    
+                    <h4 class="font-bold mb-3">Regalías Pendientes</h4>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
+                            <div>
+                                <span class="block font-medium">Circo Moderno</span>
+                                <span class="text-sm text-gray-600">Última distribución: 15/06/2023</span>
+                            </div>
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm">$24.50</span>
+                        </div>
+                        <div class="flex justify-between items-center p-3 bg-yellow-50 rounded-lg">
+                            <div>
+                                <span class="block font-medium">UTA Circ</span>
+                                <span class="text-sm text-gray-600">Última distribución: 10/06/2023</span>
+                            </div>
+                            <span class="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-sm">$18.75</span>
+                        </div>
+                    </div>
+                    <button onclick="claimRoyalties()" class="w-full mt-4 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-2 rounded-lg hover:opacity-90 transition">
+                        <i class="fas fa-hand-holding-usd mr-2"></i>Reclamar Regalías ($43.25)
+                    </button>
+                </div>
+                
+                <!-- My Investments -->
+                <div class="bg-white rounded-xl shadow-lg p-6">
+                    <h3 class="text-xl font-bold mb-4">Mis Inversiones</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between p-3 border-b">
+                            <div>
+                                <span class="block font-medium">Circo Moderno</span>
+                                <span class="text-sm text-gray-600">5 tokens ($500)</span>
+                            </div>
+                            <span class="text-green-600 font-medium">+12.3%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 border-b">
+                            <div>
+                                <span class="block font-medium">UTA Circ</span>
+                                <span class="text-sm text-gray-600">10 tokens ($900)</span>
+                            </div>
+                            <span class="text-green-600 font-medium">+8.7%</span>
+                        </div>
+                        <div class="flex items-center justify-between p-3 border-b">
+                            <div>
+                                <span class="block font-medium">Bernarda Alba</span>
+                                <span class="text-sm text-gray-600">2 tokens ($300)</span>
+                            </div>
+                            <span class="text-green-600 font-medium">+14.5%</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-6">
+                        <h4 class="font-bold mb-2">Historial de Transacciones</h4>
+                        <div class="text-sm space-y-2">
+                            <div class="flex justify-between">
+                                <span>Compra UTA Circ</span>
+                                <span class="text-gray-600">12/05/2023</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Regalía Circo Moderno</span>
+                                <span class="text-gray-600">15/06/2023</span>
+                            </div>
+                            <div class="flex justify-between">
+                                <span>Compra Bernarda Alba</span>
+                                <span class="text-gray-600">20/04/2023</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Investment Modal -->
+    <div id="investmentModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-4">Invertir en <span id="showName"></span></h3>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Cantidad de tokens</label>
+                <input type="number" id="tokenAmount" min="1" class="w-full px-3 py-2 border rounded-lg" value="1">
+            </div>
+            <div class="mb-4">
+                <p class="text-sm text-gray-600">Precio por token: $<span id="tokenPrice">100</span></p>
+                <p class="text-lg font-bold">Total: $<span id="totalAmount">100</span></p>
+                <p class="text-xs text-gray-500">Comisión del 2%: $<span id="commissionAmount">2</span></p>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Red Blockchain</label>
+                <select id="blockchainSelect" class="w-full px-3 py-2 border rounded-lg">
+                    <option value="polygon">Polygon (Recomendado)</option>
+                    <option value="solana">Solana</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Método de pago</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="selectPaymentMethod('usdc')" class="payment-method border px-3 py-2 rounded-lg hover:bg-gray-50 transition" data-method="usdc">
+                        USDC
+                    </button>
+                    <button onclick="selectPaymentMethod('ctk')" class="payment-method border px-3 py-2 rounded-lg hover:bg-gray-50 transition" data-method="ctk">
+                        CTK
+                    </button>
+                    <button onclick="selectPaymentMethod('fiat')" class="payment-method border px-3 py-2 rounded-lg hover:bg-gray-50 transition" data-method="fiat">
+                        FIAT (Tarjeta)
+                    </button>
+                    <button onclick="selectPaymentMethod('crypto')" class="payment-method border px-3 py-2 rounded-lg hover:bg-gray-50 transition" data-method="crypto">
+                        Otras Criptos
+                    </button>
+                </div>
+            </div>
+            <div class="flex space-x-4">
+                <button onclick="closeModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                    Cancelar
+                </button>
+                <button onclick="confirmInvestment()" class="flex-1 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition">
+                    Confirmar Inversión
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buy USDC Modal -->
+    <div id="usdcModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-4">Comprar USDC</h3>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Monto en USD</label>
+                <input type="number" id="usdAmount" class="w-full px-3 py-2 border rounded-lg" placeholder="100" min="100">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Método de pago</label>
+                <select class="w-full px-3 py-2 border rounded-lg">
+                    <option>Tarjeta de crédito/débito</option>
+                    <option>Transferencia bancaria</option>
+                    <option>Apple Pay/Google Pay</option>
+                </select>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                <p class="text-sm text-gray-600">Recibirás: <span id="usdcAmount">97.5</span> USDC</p>
+                <p class="text-xs text-gray-500">Comisión: 2.5%</p>
+            </div>
+            <div class="flex space-x-4">
+                <button onclick="closeUsdcModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                    Cancelar
+                </button>
+                <button onclick="buyUsdc()" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                    Comprar USDC
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Royalty Payment Modal -->
+    <div id="royaltyModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-4">Reclamar Regalías</h3>
+            <div class="mb-4">
+                <p class="text-gray-600">Tienes <span class="font-bold">$43.25</span> en regalías disponibles.</p>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Método de pago</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="selectRoyaltyMethod('usdc')" class="royalty-method border px-3 py-2 rounded-lg hover:bg-gray-50 transition" data-method="usdc">
+                        USDC
+                    </button>
+                    <button onclick="selectRoyaltyMethod('ctk')" class="royalty-method border px-3 py-2 rounded-lg hover:bg-gray-50 transition" data-method="ctk">
+                        CTK
+                    </button>
+                </div>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Red Blockchain</label>
+                <select id="royaltyBlockchain" class="w-full px-3 py-2 border rounded-lg">
+                    <option value="polygon">Polygon</option>
+                    <option value="solana">Solana</option>
+                </select>
+            </div>
+            <div class="flex space-x-4">
+                <button onclick="closeRoyaltyModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                    Cancelar
+                </button>
+                <button onclick="claimRoyalties()" class="flex-1 bg-gradient-to-r from-yellow-500 to-orange-500 text-white px-4 py-2 rounded-lg hover:opacity-90 transition">
+                    Reclamar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIAT Onramp Modal -->
+    <div id="fiatModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4">
+            <h3 class="text-2xl font-bold mb-4">Convertir FIAT a Cripto</h3>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Monto en USD</label>
+                <input type="number" id="fiatAmount" class="w-full px-3 py-2 border rounded-lg" placeholder="100" min="100">
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Convertir a</label>
+                <select id="fiatCrypto" class="w-full px-3 py-2 border rounded-lg">
+                    <option value="usdc">USDC (Estable)</option>
+                    <option value="ctk">CTK (CulturalToken)</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label class="block text-sm font-medium text-gray-700 mb-2">Método de pago</label>
+                <select class="w-full px-3 py-2 border rounded-lg">
+                    <option>Tarjeta de crédito/débito</option>
+                    <option>Transferencia bancaria</option>
+                </select>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                <p class="text-sm text-gray-600">Recibirás: <span id="fiatReceiveAmount">97.5</span> <span id="fiatReceiveCurrency">USDC</span></p>
+                <p class="text-xs text-gray-500">Comisión: 2.5%</p>
+            </div>
+            <div class="flex space-x-4">
+                <button onclick="closeFiatModal()" class="flex-1 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                    Cancelar
+                </button>
+                <button onclick="processFiatConversion()" class="flex-1 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition">
+                    Convertir
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div id="successModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50 modal">
+        <div class="bg-white rounded-2xl p-8 max-w-md w-full mx-4 text-center">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-check text-green-600 text-2xl"></i>
+            </div>
+            <h3 class="text-2xl font-bold mb-2" id="successTitle">¡Operación Exitosa!</h3>
+            <p class="text-gray-600 mb-6" id="successMessage">Tu transacción se ha completado correctamente.</p>
+            <button onclick="closeSuccessModal()" class="bg-purple-600 text-white px-6 py-2 rounded-lg hover:bg-purple-700 transition">
+                Aceptar
+            </button>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="text-xl font-bold mb-4 gradient-text">CulturaToken</h3>
+                    <p class="text-gray-400">Democratizando la inversión en arte y cultura.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Explorar</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Espectáculos</a></li>
+                        <li><a href="#" class="hover:text-white transition">Artistas</a></li>
+                        <li><a href="#" class="hover:text-white transition">Mercado</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Recursos</h4>
+                    <ul class="space-y-2 text-gray-400">
+                        <li><a href="#" class="hover:text-white transition">Guía de inversión</a></li>
+                        <li><a href="#" class="hover:text-white transition">Whitepaper</a></li>
+                        <li><a href="#" class="hover:text-white transition">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Síguenos</h4>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-twitter text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-discord text-xl"></i>
+                        </a>
+                        <a href="#" class="text-gray-400 hover:text-white transition">
+                            <i class="fab fa-telegram text-xl"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                <p>&copy; 2024 CulturaToken. Todos los derechos reservados.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // GSAP Animations
+        gsap.registerPlugin(ScrollTrigger);
+        
+        gsap.from('.hero-bg', {
+            opacity: 0,
+            y: 50,
+            duration: 1,
+            ease: 'power3.out'
+        });
+
+        gsap.from('.card-hover', {
+            scrollTrigger: {
+                trigger: '#shows',
+                start: 'top 80%',
+            },
+            opacity: 0,
+            y: 50,
+            duration: 0.8,
+            stagger: 0.2,
+            ease: 'power3.out'
+        });
+
+        // User State
+        let userState = {
+            loggedIn: false,
+            walletConnected: false,
+            phantomConnected: false,
+            walletAddress: null,
+            email: null,
+            name: null,
+            balance: {
+                usdc: 0,
+                ctk: 0
+            },
+            investments: []
+        };
+
+        // Mock data for shows
+        const showsData = [
+            {
+                id: 1,
+                name: "Circo Moderno 'El Último Sueño'",
+                description: "Un espectáculo de circo contemporáneo que combina acrobacias, teatro y música en vivo.",
+                image: "https://images.unsplash.com/photo-1547153760-18fc86324498?w=400",
+                status: "funding",
+                funded: 78000,
+                goal: 100000,
+                price: 100,
+                contractAddress: "0x123...456",
+                returns: "12-15%"
+            },
+            {
+                id: 2,
+                name: "Teatro 'La Casa de Bernarda Alba'",
+                description: "Clásico del teatro español dirigido por jóvenes talentos emergentes.",
+                image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400",
+                status: "active",
+                funded: 120000,
+                goal: 100000,
+                price: 150,
+                contractAddress: "0x789...012",
+                returns: "14.5%"
+            },
+            {
+                id: 3,
+                name: "Concierto 'Sinfonía de las Américas'",
+                description: "Concierto sinfónico que fusiona música clásica con ritmos latinoamericanos.",
+                image: "https://images.unsplash.com/photo-1524368535928-5b5e00ddc76b?w=400",
+                status: "upcoming",
+                funded: 0,
+                goal: 75000,
+                price: 125,
+                contractAddress: "0x345...678",
+                returns: "10-12%"
+            },
+            {
+                id: 4,
+                name: "UTA Circ 'No Matalàs'",
+                description: "Espectáculo de circo y teatro spooky-clown con acrobacias impactantes y narrativa oscura.",
+                image: "https://images.unsplash.com/photo-1507035895480-2b3156c31fc8?w=400",
+                status: "funding",
+                funded: 45000,
+                goal: 100000,
+                price: 90,
+                contractAddress: "0x901...234",
+                returns: "15-18%"
+            }
+        ];
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            // Check if user is logged in (mock)
+            checkUserLogin();
+            
+            // Setup event listeners
+            setupEventListeners();
+        });
+
+        function checkUserLogin() {
+            // Mock: Check if user is logged in (in a real app, this would check localStorage or a session)
+            const mockLoggedIn = true; // Change to false to simulate logged out state
+            
+            if (mockLoggedIn) {
+                userState.loggedIn = true;
+                userState.email = "usuario@ejemplo.com";
+                userState.name = "Usuario Ejemplo";
+                userState.walletAddress = "0x1a2b3c4d5e6f7g8h9i0j";
+                userState.balance.usdc = 1250.50;
+                userState.balance.ctk = 500;
+                userState.investments = [
+                    { showId: 1, tokens: 5, amount: 500 },
+                    { showId: 4, tokens: 10, amount: 900 },
+                    { showId: 2, tokens: 2, amount: 300 }
+                ];
+                
+                updateUserUI();
+            }
+        }
+
+        function updateUserUI() {
+            if (userState.loggedIn) {
+                document.getElementById('userName').textContent = userState.name;
+                document.getElementById('userEmail').textContent = userState.email;
+                document.getElementById('userWalletAddress').textContent = userState.walletAddress;
+                document.getElementById('totalBalance').textContent = `$${(userState.balance.usdc + (userState.balance.ctk * 0.5)).toFixed(2)}`; // Assuming CTK is worth $0.5
+                document.getElementById('usdcBalance').textContent = `${userState.balance.usdc.toFixed(2)} USDC`;
+                document.getElementById('ctkBalance').textContent = `${userState.balance.ctk} CTK`;
+                
+                // Show wallet address in nav
+                document.getElementById('userWallet').classList.remove('hidden');
+                document.getElementById('walletAddress').textContent = `${userState.walletAddress.substring(0, 6)}...${userState.walletAddress.substring(userState.walletAddress.length - 4)}`;
+            }
+        }
+
+        function setupEventListeners() {
+            // Wallet Connection
+            document.getElementById('connectWallet').addEventListener('click', async function() {
+                if (userState.loggedIn) {
+                    // If already logged in, show dashboard
+                    document.getElementById('dashboard').classList.remove('hidden');
+                    document.getElementById('dashboard').scrollIntoView({ behavior: 'smooth' });
+                } else {
+                    // Simulate wallet connection
+                    simulateWalletConnection();
+                }
+            });
+
+            // Scroll Navigation
+            document.getElementById('exploreBtn').addEventListener('click', function() {
+                document.getElementById('shows').scrollIntoView({ behavior: 'smooth' });
+            });
+
+            // USDC Modal
+            document.getElementById('buyUsdcBtn').addEventListener('click', function() {
+                document.getElementById('usdcModal').classList.remove('hidden');
+                document.getElementById('usdcModal').classList.add('flex');
+            });
+
+            // Token amount calculation
+            document.getElementById('tokenAmount').addEventListener('input', function() {
+                const amount = parseInt(this.value) || 0;
+                const price = parseInt(document.getElementById('tokenPrice').textContent);
+                const total = amount * price;
+                document.getElementById('totalAmount').textContent = total;
+                document.getElementById('commissionAmount').textContent = (total * 0.02).toFixed(2);
+            });
+
+            // USD amount calculation
+            document.getElementById('usdAmount').addEventListener('input', function() {
+                const amount = parseFloat(this.value) || 0;
+                const usdcAmount = amount * 0.975; // Subtract 2.5% fee
+                document.getElementById('usdcAmount').textContent = usdcAmount.toFixed(2);
+            });
+
+            // FIAT amount calculation
+            document.getElementById('fiatAmount').addEventListener('input', function() {
+                const amount = parseFloat(this.value) || 0;
+                const cryptoAmount = amount * 0.975; // Subtract 2.5% fee
+                document.getElementById('fiatReceiveAmount').textContent = cryptoAmount.toFixed(2);
+            });
+
+            // FIAT crypto selection
+            document.getElementById('fiatCrypto').addEventListener('change', function() {
+                const crypto = this.value;
+                document.getElementById('fiatReceiveCurrency').textContent = crypto === 'usdc' ? 'USDC' : 'CTK';
+            });
+
+            // Smooth scroll for navigation links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                });
+            });
+        }
+
+        function simulateWalletConnection() {
+            // In a real app, this would connect to Phantom or create a wallet
+            userState.loggedIn = true;
+            userState.walletConnected = true;
+            userState.walletAddress = "0x" + Math.random().toString(16).substr(2, 40);
+            userState.email = "usuario" + Math.floor(Math.random() * 1000) + "@ejemplo.com";
+            userState.name = "Usuario " + Math.floor(Math.random() * 1000);
+            userState.balance.usdc = Math.floor(Math.random() * 5000);
+            userState.balance.ctk = Math.floor(Math.random() * 1000);
+            
+            updateUserUI();
+            
+            document.getElementById('connectWallet').textContent = 'Wallet Conectada';
+            document.getElementById('connectWallet').classList.remove('bg-purple-600');
+            document.getElementById('connectWallet').classList.add('bg-green-600');
+            
+            // Show success message
+            showSuccess('Wallet conectada', 'Tu wallet ha sido conectada exitosamente.');
+        }
+
+        async function connectPhantom() {
+            if (window.phantom && window.phantom.solana) {
+                try {
+                    const response = await window.phantom.solana.connect();
+                    userState.phantomConnected = true;
+                    userState.walletAddress = response.publicKey.toString();
+                    
+                    updateUserUI();
+                    showSuccess('Phantom conectada', 'Tu wallet Phantom ha sido conectada exitosamente.');
+                } catch (error) {
+                    alert('Error al conectar Phantom wallet: ' + error.message);
+                }
+            } else {
+                alert('Por favor instala Phantom wallet desde https://phantom.app/');
+            }
+        }
+
+        // Modal Functions
+        function openInvestmentModal(showName, price, contractAddress) {
+            document.getElementById('showName').textContent = showName;
+            document.getElementById('tokenPrice').textContent = price;
+            document.getElementById('investmentModal').classList.remove('hidden');
+            document.getElementById('investmentModal').classList.add('flex');
+            
+            // Reset payment method selection
+            document.querySelectorAll('.payment-method').forEach(btn => {
+                btn.classList.remove('bg-purple-100', 'border-purple-500');
+            });
+            
+            // Store current show data
+            document.getElementById('investmentModal').dataset.contractAddress = contractAddress;
+        }
+
+        function closeModal() {
+            document.getElementById('investmentModal').classList.add('hidden');
+            document.getElementById('investmentModal').classList.remove('flex');
+        }
+
+        function closeUsdcModal() {
+            document.getElementById('usdcModal').classList.add('hidden');
+            document.getElementById('usdcModal').classList.remove('flex');
+        }
+
+        function closeRoyaltyModal() {
+            document.getElementById('royaltyModal').classList.add('hidden');
+            document.getElementById('royaltyModal').classList.remove('flex');
+        }
+
+        function closeFiatModal() {
+            document.getElementById('fiatModal').classList.add('hidden');
+            document.getElementById('fiatModal').classList.remove('flex');
+        }
+
+        function closeSuccessModal() {
+            document.getElementById('successModal').classList.add('hidden');
+            document.getElementById('successModal').classList.remove('flex');
+        }
+
+        function selectPaymentMethod(method) {
+            document.querySelectorAll('.payment-method').forEach(btn => {
+                btn.classList.remove('bg-purple-100', 'border-purple-500');
+            });
+            
+            const selectedBtn = document.querySelector(`.payment-method[data-method="${method}"]`);
+            selectedBtn.classList.add('bg-purple-100', 'border-purple-500');
+            
+            document.getElementById('investmentModal').dataset.paymentMethod = method;
+        }
+
+        function selectRoyaltyMethod(method) {
+            document.querySelectorAll('.royalty-method').forEach(btn => {
+                btn.classList.remove('bg-purple-100', 'border-purple-500');
+            });
+            
+            const selectedBtn = document.querySelector(`.royalty-method[data-method="${method}"]`);
+            selectedBtn.classList.add('bg-purple-100', 'border-purple-500');
+            
+            document.getElementById('royaltyModal').dataset.paymentMethod = method;
+        }
+
+        function showFiatModal() {
+            document.getElementById('fiatModal').classList.remove('hidden');
+            document.getElementById('fiatModal').classList.add('flex');
+        }
+
+        function showRoyaltyModal() {
+            document.getElementById('royaltyModal').classList.remove('hidden');
+            document.getElementById('royaltyModal').classList.add('flex');
+        }
+
+        function showSuccess(title, message) {
+            document.getElementById('successTitle').textContent = title;
+            document.getElementById('successMessage').textContent = message;
+            document.getElementById('successModal').classList.remove('hidden');
+            document.getElementById('successModal').classList.add('flex');
+        }
+
+        // Investment confirmation
+        function confirmInvestment() {
+            const amount = parseInt(document.getElementById('tokenAmount').value);
+            const total = parseInt(document.getElementById('totalAmount').textContent);
+            const showName = document.getElementById('showName').textContent;
+            const blockchain = document.getElementById('blockchainSelect').value;
+            
+            // Get payment method
+            const paymentMethod = document.getElementById('investmentModal').dataset.paymentMethod;
+            
+            if (!paymentMethod) {
+                alert('Por favor selecciona un método de pago');
+                return;
+            }
+            
+            // Simulate transaction
+            showSuccess('Inversión confirmada', `Has comprado ${amount} tokens de "${showName}" por $${total} usando ${paymentMethod.toUpperCase()} en ${blockchain}.`);
+            
+            // Update user balance (mock)
+            if (paymentMethod === 'usdc') {
+                userState.balance.usdc -= total;
+            } else if (paymentMethod === 'ctk') {
+                userState.balance.ctk -= total / 0.5; // Assuming CTK is worth $0.5
+            }
+            
+            // Add to investments
+            const show = showsData.find(s => s.name.includes(showName));
+            if (show) {
+                userState.investments.push({
+                    showId: show.id,
+                    tokens: amount,
+                    amount: total
+                });
+            }
+            
+            updateUserUI();
+            closeModal();
+        }
+
+        // Buy USDC
+        function buyUsdc() {
+            const amount = parseFloat(document.getElementById('usdAmount').value);
+            
+            if (amount < 100) {
+                alert('El mínimo de compra es $100');
+                return;
+            }
+            
+            // Simulate purchase
+            const usdcAmount = amount * 0.975; // Subtract 2.5% fee
+            userState.balance.usdc += usdcAmount;
+            
+            updateUserUI();
+            showSuccess('Compra exitosa', `Has adquirido ${usdcAmount.toFixed(2)} USDC.`);
+            closeUsdcModal();
+        }
+
+        // Process FIAT conversion
+        function processFiatConversion() {
+            const amount = parseFloat(document.getElementById('fiatAmount').value);
+            const crypto = document.getElementById('fiatCrypto').value;
+            
+            if (amount < 100) {
+                alert('El mínimo de compra es $100');
+                return;
+            }
+            
+            // Simulate conversion
+            const cryptoAmount = amount * 0.975; // Subtract 2.5% fee
+            
+            if (crypto === 'usdc') {
+                userState.balance.usdc += cryptoAmount;
+                showSuccess('Conversión exitosa', `Has convertido $${amount} a ${cryptoAmount.toFixed(2)} USDC.`);
+            } else {
+                // Assuming CTK is worth $0.5
+                const ctkAmount = cryptoAmount / 0.5;
+                userState.balance.ctk += ctkAmount;
+                showSuccess('Conversión exitosa', `Has convertido $${amount} a ${ctkAmount.toFixed(2)} CTK.`);
+            }
+            
+            updateUserUI();
+            closeFiatModal();
+        }
+
+        // Claim royalties
+        function claimRoyalties() {
+            const method = document.getElementById('royaltyModal').dataset.paymentMethod;
+            const blockchain = document.getElementById('royaltyBlockchain').value;
+            
+            if (!method) {
+                alert('Por favor selecciona un método de pago');
+                return;
+            }
+            
+            // Simulate royalty claim
+            const royaltyAmount = 43.25;
+            
+            if (method === 'usdc') {
+                userState.balance.usdc += royaltyAmount;
+                showSuccess('Regalías reclamadas', `Has recibido ${royaltyAmount} USDC en ${blockchain}.`);
+            } else {
+                // Assuming CTK is worth $0.5
+                const ctkAmount = royaltyAmount / 0.5;
+                userState.balance.ctk += ctkAmount;
+                showSuccess('Regalías reclamadas', `Has recibido ${ctkAmount.toFixed(2)} CTK en ${blockchain}.`);
+            }
+            
+            updateUserUI();
+            closeRoyaltyModal();
+        }
+    </script>
+</body>
+</html>
