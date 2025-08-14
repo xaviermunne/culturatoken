@@ -1,71 +1,120 @@
-// C:\Users\xavie\OneDrive\Escritorio\feina\programas propios\CulturalToken\deepseek\js\app.js
+/**
+ * Main Application Entry Point
+ * @module app
+ * @requires modules/uiUpdater
+ * @requires services/auth/authService
+ * @requires services/transaction/transactionService
+ * @requires services/notification/notificationService
+ * @requires utils/eventBus
+ * @requires utils/logger
+ */
 
-import { initGSAPAnimations } from './modules/animations/gsapSetup.js';
-import { initSwiperCarousel } from './modules/components/swiperSetup.js';
-import { initCTKChart } from './modules/components/chartSetup.js';
-import appState from './stores/appState.js';
+import uiUpdater from './modules/uiUpdater';
+import authService from './services/auth/authService';
+import transactionService from './services/transaction/transactionService';
+import notificationService from './services/notification/notificationService';
+import eventBus from './utils/eventBus';
+import { logger } from './utils/logger';
 
-// Configuración de eventos pasivos optimizados
-const setupPassiveListeners = () => {
-  const debounce = (fn, delay = 100) => {
-    let timeoutId;
-    return (...args) => {
-      clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => fn.apply(this, args), delay);
-    };
-  };
-
-  const handleScroll = debounce(() => {
-    // Lógica de scroll optimizada
-  });
-
-  const handleResize = debounce(() => {
-    // Lógica de resize optimizada
-  });
-
-  document.addEventListener('scroll', handleScroll, { passive: true });
-  window.addEventListener('resize', handleResize, { passive: true });
-
-  return () => {
-    document.removeEventListener('scroll', handleScroll);
-    window.removeEventListener('resize', handleResize);
-  };
-};
-
-// Inicialización de la aplicación
-const initApp = () => {
-  try {
-    // 1. Inicializar animaciones
-    initGSAPAnimations();
-    
-    // 2. Inicializar componentes
-    initSwiperCarousel();
-    initCTKChart();
-    
-    // 3. Configurar listeners pasivos
-    const cleanupListeners = setupPassiveListeners();
-    
-    // 4. Inicializar Alpine.js
-    window.Alpine.store('appState', appState());
-    window.Alpine.start();
-    
-    return () => {
-      cleanupListeners();
-      // Limpieza adicional si es necesaria
-    };
-  } catch (error) {
-    console.error('Error durante la inicialización:', error);
-    // Mostrar mensaje de error al usuario
-    const errorDisplay = document.createElement('div');
-    errorDisplay.className = 'global-error';
-    errorDisplay.textContent = 'Error al cargar la aplicación. Por favor recarga la página.';
-    document.body.prepend(errorDisplay);
+class CulturaTokenApp {
+  constructor() {
+    this._isInitialized = false;
+    this._registerCoreListeners();
   }
-};
 
-// Iniciar cuando el DOM esté listo
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initApp);
-} else {
-  initApp();
+  /**
+   * Initialize application
+   * @returns {Promise<void>}
+   */
+  async initialize() {
+    if (this._isInitialized) return;
+
+    try {
+      logger.log('Initializing application...');
+      eventBus.emit('appLoading', { loading: true });
+
+      // Ordered initialization chain
+      await authService.initialize();
+      await transactionService.initialize();
+      notificationService.init();
+      uiUpdater.init();
+
+      logger.log('Application initialized successfully');
+      this._isInitialized = true;
+      eventBus.emit('appReady');
+
+    } catch (error) {
+      logger.error('Initialization failed:', error);
+      eventBus.emit('appError', error);
+      throw error;
+    } finally {
+      eventBus.emit('appLoading', { loading: false });
+    }
+  }
+
+  /**
+   * Register core event listeners
+   */
+  _registerCoreListeners() {
+    // Authentication events
+    eventBus.on('authStateChanged', (data) => {
+      if (!data.isAuthenticated) {
+        transactionService.clearPendingTransactions();
+      }
+    });
+
+    // Transaction events
+    eventBus.on('transactionCompleted', (tx) => {
+      notificationService.add({
+        title: 'Transaction Completed',
+        message: `${tx.type} transaction was confirmed`,
+        type: 'success',
+        persistent: true
+      });
+    });
+
+    // Error handling
+    eventBus.on('apiError', (error) => {
+      notificationService.add({
+        title: 'API Error',
+        message: error.message,
+        type: 'error'
+      });
+    });
+
+    eventBus.on('appError', (error) => {
+      notificationService.add({
+        title: 'Application Error',
+        message: 'A critical error occurred',
+        type: 'error',
+        persistent: true
+      });
+    });
+  }
+
+  /**
+   * Get initialization status
+   * @returns {boolean}
+   */
+  get isInitialized() {
+    return this._isInitialized;
+  }
 }
+
+// Create singleton instance
+const appInstance = new CulturaTokenApp();
+
+// Automatic initialization when DOM is ready
+if (document.readyState === 'complete') {
+  appInstance.initialize().catch(error => {
+    console.error('Failed to initialize:', error);
+  });
+} else {
+  document.addEventListener('DOMContentLoaded', () => {
+    appInstance.initialize().catch(error => {
+      console.error('Failed to initialize:', error);
+    });
+  });
+}
+
+export default appInstance;
